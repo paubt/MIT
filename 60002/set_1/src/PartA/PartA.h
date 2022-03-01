@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 #include <queue>
+#include <chrono>
 
 std::unordered_map<std::string, int> load_cows(std::string filename);
 
@@ -25,5 +26,7 @@ struct SpaceShipConfig {
 std::vector<std::vector<std::string>> brute_force_cow_transport(
         const std::unordered_map<std::string, int> &cows, int limit);
 
+// test function for both
+bool test_cow_transport(int limit = 10);
 
 #endif // PARTA_H

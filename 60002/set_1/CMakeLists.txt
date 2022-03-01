@@ -11,4 +11,4 @@ set(CMAKE_BUILD_TYPE Debug)
 include_directories(${PROJECT_SOURCE_DIR})
 
 
-add_executable (set_1_app src/main.cpp src/PartA/PartA.cpp)
+add_executable (set_1_app src/main.cpp src/PartA/PartA.cpp src/PartB/PartB.cpp)

@@ -108,7 +108,7 @@ brute_force_cow_transport(const std::unordered_map<std::string, int> &cows, int 
     std::vector<std::tuple<std::string, int>> c;
     for (auto it: cows)
     {
-        c.push_back(it);
+        c.emplace_back(it);
     }
     // the number of spaceships for the solution , start with 1 and increment until found
     int spaceship_counter = 0;
@@ -154,4 +154,39 @@ brute_force_cow_transport(const std::unordered_map<std::string, int> &cows, int 
     } while (true);
 
     return {};
+}
+
+bool test_cow_transport(int limit) {
+    using namespace std::chrono;
+
+    auto cows = load_cows("../data/ps1_cow_data.txt");
+    //for (auto& p: cows) std::cout << p.first << " => " << p.second << '\n';
+    time_point<steady_clock> last = steady_clock::now();
+    auto g = greedy_cow_transport(cows, 10);
+    auto t = duration_cast<milliseconds>( steady_clock::now() - last ).count();
+    std::cout << "greedy needs " << g.size() << " spaceships" << std::endl;
+    std::cout << "time needed: " << t << std::endl;
+    int spaceship_counter = 1;
+    for (auto s: g)
+    {
+        std::cout << "spaceship nr " << spaceship_counter++ << "  =  ";
+        for (auto p: s)
+            std::cout << "[" << p << "] ";
+        std::cout << '\n';
+    }
+    last = steady_clock::now();
+    auto ss = brute_force_cow_transport(cows, 10);
+    t = duration_cast<milliseconds>( steady_clock::now() - last ).count();
+    std::cout << "\nbrute force needs " << ss.size() << " spaceships" << std::endl;
+    std::cout << "time needed: " << t << std::endl;
+    spaceship_counter = 1;
+    for (auto s: ss)
+    {
+        std::cout << "spaceship nr " << spaceship_counter++ << "  =  ";
+        for (auto p: s)
+            std::cout << "[" << p << "] ";
+        std::cout << '\n';
+    }
+
+    return true;
 }
