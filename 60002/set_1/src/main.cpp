@@ -1,11 +1,9 @@
 #include "PartA/PartA.h"
-#include <iostream>
-
+#include "PartB/PartB.h"
 
 int main(int argc, char const *argv[])
 {
-    auto cows = load_cows("data/ps1_cow_data.txt");
-    //for (auto& p: cows) std::cout << p.first << " => " << p.second << '\n';
-    auto g = greedy_cow_transport(cows, 20 );
+    bool r_c = test_cow_transport(10);
+    bool r_e = test_golden_eggs();
     return 0;
 }

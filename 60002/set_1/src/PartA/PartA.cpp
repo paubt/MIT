@@ -97,16 +97,96 @@ std::vector<std::vector<std::string>> greedy_cow_transport(
     spaceships.push_back(ns);
 
   }
-  std::cout <<"with this size limit " << spaceships.size() << " are needed"
-            << "\nlist of the spaceships with its passengers:\n";
-  int spaceship_counter = 1;
-  for (auto s: spaceships)
-  {
-    std::cout << "spaceship nr " << spaceship_counter++ << "  =  ";
-    for (auto p: s)
-      std::cout << "[" << p << "] ";
-    std::cout << '\n';
-  }
-
   return spaceships;
+}
+
+
+std::vector<std::vector<std::string>>
+brute_force_cow_transport(const std::unordered_map<std::string, int> &cows, int limit)
+{
+    // transform map of cows to vector
+    std::vector<std::tuple<std::string, int>> c;
+    for (auto it: cows)
+    {
+        c.emplace_back(it);
+    }
+    // the number of spaceships for the solution , start with 1 and increment until found
+    int spaceship_counter = 0;
+    do {
+        // create the initial spaceship_config which is empty and push it on the queue
+        SpaceShipConfig init = {std::vector<std::tuple<std::vector<std::string>, int>>(++spaceship_counter),
+                                c,
+                                0};
+        std::queue<SpaceShipConfig> open_spaceships;
+        open_spaceships.push(init);
+        // breath-first-search expand
+        while (!open_spaceships.empty())
+        {
+            // pop next spaceship config to expand
+            auto ssc = open_spaceships.front();
+            open_spaceships.pop();
+            // pop the cow to assign
+            if (ssc.open_cows.empty())
+            {
+                std::vector<std::vector<std::string>> r;
+                for (auto s: ssc.spaceships)
+                {
+                    r.push_back(std::get<0>(s));
+                }
+                return r;
+            }
+            auto next_cow = ssc.open_cows[0];
+            ssc.open_cows.erase(ssc.open_cows.begin());
+            // try to add the new cow to each spaceship and if so create a new spaceship config
+            // and push it to the open queue
+            // else aka its to heavy... skip the add, effectively excluding from future expansion
+            for (int i = 0; i < spaceship_counter; i++)
+            {
+                if ((std::get<1>(ssc.spaceships[i]) + std::get<1>(next_cow)) <= limit)
+                {
+                    auto ssa = ssc;
+                    std::get<0>(ssa.spaceships[i]).push_back(std::get<0>(next_cow));
+                    std::get<1>(ssa.spaceships[i]) += std::get<1>(next_cow);
+                    open_spaceships.push(ssa);
+                }
+            }
+        }
+    } while (true);
+
+    return {};
+}
+
+bool test_cow_transport(int limit) {
+    using namespace std::chrono;
+
+    auto cows = load_cows("../data/ps1_cow_data.txt");
+    //for (auto& p: cows) std::cout << p.first << " => " << p.second << '\n';
+    time_point<steady_clock> last = steady_clock::now();
+    auto g = greedy_cow_transport(cows, 10);
+    auto t = duration_cast<milliseconds>( steady_clock::now() - last ).count();
+    std::cout << "greedy needs " << g.size() << " spaceships" << std::endl;
+    std::cout << "time needed: " << t << std::endl;
+    int spaceship_counter = 1;
+    for (auto s: g)
+    {
+        std::cout << "spaceship nr " << spaceship_counter++ << "  =  ";
+        for (auto p: s)
+            std::cout << "[" << p << "] ";
+        std::cout << '\n';
+    }
+    last = steady_clock::now();
+    auto ss = brute_force_cow_transport(cows, 10);
+    t = duration_cast<milliseconds>( steady_clock::now() - last ).count();
+    std::cout << "\nbrute force needs " << ss.size() << " spaceships" << std::endl;
+    std::cout << "time needed: " << t << std::endl;
+    spaceship_counter = 1;
+    for (auto s: ss)
+    {
+        std::cout << "spaceship nr " << spaceship_counter++ << "  =  ";
+        for (auto p: s)
+            std::cout << "[" << p << "] ";
+        std::cout << '\n';
+    }
+
+    return true;
 }
